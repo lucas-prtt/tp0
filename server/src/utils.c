@@ -14,13 +14,13 @@ int iniciar_servidor(void)
 	hints.ai_flags = AI_PASSIVE;
 
 	getaddrinfo(NULL, PUERTO, &hints, &servinfo);
-
+	
 	// Creamos el socket de escucha del servidor
 	socket_servidor = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
 	// Asociamos el socket a un puerto	
-	setsockopt(socket_servidoro, SOL_SOCKET, SO_REUSEPORT, &(int){1}, sizeof(int));
-¿	bind(socket_servidor, server_info->ad.adress, serverinfo->ai.addrlen;
-	sten(socket_servidor, SO_MAX_COUNR);
+	setsockopt(socket_servidor, SOL_SOCKET, SO_REUSEPORT, &(int){1}, sizeof(int));
+	bind(socket_servidor, servinfo->ai_addr, servinfo->ai_addrlen);
+	listen(socket_servidor, SOMAXCONN);
 	// Escuchamos las conexiones entrantes
 	listen(socket_servidor, 10);
 	freeaddrinfo(servinfo);
@@ -32,7 +32,7 @@ int iniciar_servidor(void)
 int esperar_cliente(int socket_servidor)
 {
 	int socket_cliente;
-	socket_cliente = accept(socket_servidor, NULL, NULL)
+	socket_cliente = accept(socket_servidor, NULL, NULL);
 	log_info(logger, "Se conecto un cliente!");
 
 	return socket_cliente;
