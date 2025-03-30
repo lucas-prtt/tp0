@@ -87,7 +87,12 @@ void leer_consola(t_log* logger)
 
 	// El resto, las vamos leyendo y logueando hasta recibir un string vacío
 
-
+	while (leido[0]!='\0'){
+		log_info(logger, leido);
+		free(leido);
+		leido = readline("> ");
+	}
+	free(leido);
 	// ¡No te olvides de liberar las lineas antes de regresar!
 
 }
