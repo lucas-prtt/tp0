@@ -1,6 +1,30 @@
 #include "utils.h"
 
 
+int crearSocket(char* ip, char* puerto, struct addrinfo * * server_info){
+    int soc;
+    struct addrinfo hints;
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE; // IGNORADA SI ip != NULL (en cliente)
+
+	getaddrinfo(ip, puerto, &hints, server_info);
+    soc = socket((*server_info)->ai_family, (*server_info)->ai_socktype, (*server_info)->ai_protocol);
+    setsockopt(soc, SOL_SOCKET, SO_REUSEPORT, &(int){1}, sizeof(int));
+    return soc;
+}
+
+int conectarSocketClient(char* ip, char* puerto){
+    int soc;
+    struct addrinfo * serverInfo = NULL;
+    soc = crearSocket(ip, puerto, &serverInfo);
+    connect(soc, serverInfo->ai_addr, serverInfo->ai_addrlen);
+	freeaddrinfo(serverInfo);
+    return soc;
+}
+
 void* serializar_paquete(t_paquete* paquete, int bytes)
 {
 	void * magic = malloc(bytes);

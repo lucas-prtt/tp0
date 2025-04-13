@@ -44,15 +44,14 @@ int main(void)
 
 	/* ---------------- LEER DE CONSOLA ---------------- */
 
-	leer_consola(logger);
-
 	/*---------------------------------------------------PARTE 3-------------------------------------------------------------*/
 
 	// ADVERTENCIA: Antes de continuar, tenemos que asegurarnos que el servidor esté corriendo para poder conectarnos a él
 
 	// Creamos una conexión hacia el servidor
-	conexion = crear_conexion(ip, puerto);
-
+	conexion = conectarSocketClient(ip, puerto);
+	log_info(logger, "aa");
+	
 	// Enviamos al servidor el valor de CLAVE como mensaje
 	enviar_mensaje(clave, conexion);
 	// Armamos y enviamos el paquete

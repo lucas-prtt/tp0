@@ -2,11 +2,11 @@
 
 int main(void) {
 	logger = log_create("log.log", "Servidor", 1, LOG_LEVEL_DEBUG);
-
-	int server_fd = iniciar_servidor();
+	char * port = malloc(sizeof("4444"));
+	memcpy(port, "4444", sizeof("4444"));
+	int server_fd = crearSocketServer(port);
 	log_info(logger, "Servidor listo para recibir al cliente");
 	int cliente_fd = esperar_cliente(server_fd);
-
 	t_list* lista;
 	while (1) {
 		int cod_op = recibir_operacion(cliente_fd);
