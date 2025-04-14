@@ -27,29 +27,33 @@ int crearSocketServer(char* puerto){
     return soc;
 }
 
-int esperarClientes(int socket_server, void (*atenderCliente)(void*)){ //EsperarClientes(): Se queda siempre en esta funcion la cual crea threads. Toma la funcion atenderCliente para crear el thread "
-    while (1) { //Copiada de utnso.com (guia sockets), hay que ver si anda
+int esperarClientes(int socket_server, void (*atenderCliente)(void*), parametrosAtencionThread * params){ //EsperarClientes(): Se queda siempre en esta funcion la cual crea threads. Toma la funcion atenderCliente para crear el thread "
+    logger = log_create("logthreads.log", "thread", true, LOG_LEVEL_INFO);
+	while (1) {
         pthread_t thread;
-		infoAtencionThread * params;
-		params = malloc(sizeof(infoAtencionThread));
-		params->socket = accept(socket_server, NULL, NULL);
-		params->numeroDelDia = 42;
+		infoAtencionThread * infoThread;
+		infoThread = malloc(sizeof(infoAtencionThread));
+		infoThread->socket = accept(socket_server, NULL, NULL);
+		infoThread->parametros = params;
+		log_info(logger, "esperando clientes");
         pthread_create(&thread,
                     NULL,
-                    (void*) atenderConThread,
-                    params);
+                    atenderConThread,
+                    (void*)infoThread);
         pthread_detach(thread);
     }
 }
 
-void * atenderConThread(void * puntero){
+void * atenderConThread(void * infoThread){
+	logger = log_create("logthreads.log", "thread", true, LOG_LEVEL_INFO);
+	log_info(logger, "creado el thread");
 	t_list* lista;
-	infoAtencionThread params = *(infoAtencionThread*)puntero;
-	int cliente_fd = params.socket;
-	int numeroDelDia = params.numeroDelDia;
-	logger = log_create("logthreads.txt", "thread", true, LOG_LEVEL_INFO);
+
+	int cliente_fd = (*(infoAtencionThread*)infoThread).socket;
+	parametrosAtencionThread * parametros = (*(infoAtencionThread*)infoThread).parametros;
+
 	while (1) {
-		printf("El numero del dia es %d", numeroDelDia);
+		printf("El numero del dia es %d", parametros->ejemplo);
 		int cod_op = recibir_operacion(cliente_fd);
 		switch (cod_op) {
 		case MENSAJE:
@@ -62,12 +66,12 @@ void * atenderConThread(void * puntero){
 			break;
 		case -1:
 			log_error(logger, "el cliente se desconecto. Terminando servidor");
-			return EXIT_FAILURE;
 		default:
 			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
 			break;
 		}
 	}
+	free(infoThread);
 	pthread_exit(0);
 }
 

@@ -10,7 +10,7 @@
 #include<commons/collections/list.h>
 #include<string.h>
 #include<assert.h>
-
+#include <pthread.h>
 #define PUERTO "4444"
 typedef enum
 {
@@ -20,15 +20,17 @@ typedef enum
 void iterator(char* value);
 typedef struct{
 	int socket;
-	int numeroDelDia;
+	void * parametros;
 }infoAtencionThread;
-
+typedef struct{
+	int ejemplo;
+}parametrosAtencionThread;
 
 
 
 extern t_log* logger;
 void * atenderConThread(void * puntero);
-int esperarClientes(int socket_server, void (*atenderCliente)(void*));
+int esperarClientes(int socket_server, void (*atenderCliente)(void*), parametrosAtencionThread * parametros);
 void* recibir_buffer(int*, int);
 
 int iniciar_servidor(void);
