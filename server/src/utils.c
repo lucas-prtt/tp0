@@ -66,12 +66,14 @@ void * atenderConThread(void * infoThread){
 			break;
 		case -1:
 			log_error(logger, "el cliente se desconecto. Terminando servidor");
+			free(infoThread);
+			pthread_exit(0);		
 		default:
 			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
 			break;
 		}
 	}
-	free(infoThread);
+		free(infoThread);
 	pthread_exit(0);
 }
 
