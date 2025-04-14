@@ -12,15 +12,23 @@
 #include<assert.h>
 
 #define PUERTO "4444"
-
 typedef enum
 {
 	MENSAJE,
 	PAQUETE
 }op_code;
+void iterator(char* value);
+typedef struct{
+	int socket;
+	int numeroDelDia;
+}infoAtencionThread;
+
+
+
 
 extern t_log* logger;
-
+void * atenderConThread(void * puntero);
+int esperarClientes(int socket_server, void (*atenderCliente)(void*));
 void* recibir_buffer(int*, int);
 
 int iniciar_servidor(void);
@@ -30,3 +38,5 @@ void recibir_mensaje(int);
 int recibir_operacion(int);
 int crearSocketServer(char * puerto);
 #endif /* UTILS_H_ */
+
+

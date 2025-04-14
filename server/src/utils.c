@@ -1,10 +1,11 @@
 #include "utils.h"
 #include <errno.h>
+
+
 t_log* logger;
 int crearSocket(char* ip, char* puerto, struct addrinfo * * server_info){
     int soc;
     struct addrinfo hints;
-
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
@@ -25,6 +26,56 @@ int crearSocketServer(char* puerto){
 	freeaddrinfo(serverInfo);
     return soc;
 }
+
+int esperarClientes(int socket_server, void (*atenderCliente)(void*)){ //EsperarClientes(): Se queda siempre en esta funcion la cual crea threads. Toma la funcion atenderCliente para crear el thread "
+    while (1) { //Copiada de utnso.com (guia sockets), hay que ver si anda
+        pthread_t thread;
+		infoAtencionThread * params;
+		params = malloc(sizeof(infoAtencionThread));
+		params->socket = accept(socket_server, NULL, NULL);
+		params->numeroDelDia = 42;
+        pthread_create(&thread,
+                    NULL,
+                    (void*) atenderConThread,
+                    params);
+        pthread_detach(thread);
+    }
+}
+
+void * atenderConThread(void * puntero){
+	t_list* lista;
+	infoAtencionThread params = *(infoAtencionThread*)puntero;
+	int cliente_fd = params.socket;
+	int numeroDelDia = params.numeroDelDia;
+	logger = log_create("logthreads.txt", "thread", true, LOG_LEVEL_INFO);
+	while (1) {
+		printf("El numero del dia es %d", numeroDelDia);
+		int cod_op = recibir_operacion(cliente_fd);
+		switch (cod_op) {
+		case MENSAJE:
+			recibir_mensaje(cliente_fd);
+			break;
+		case PAQUETE:
+			lista = recibir_paquete(cliente_fd);
+			log_info(logger, "Me llegaron los siguientes valores:\n");
+			list_iterate(lista, (void*) iterator);
+			break;
+		case -1:
+			log_error(logger, "el cliente se desconecto. Terminando servidor");
+			return EXIT_FAILURE;
+		default:
+			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+			break;
+		}
+	}
+	pthread_exit(0);
+}
+
+void iterator(char* value) {
+	log_info(logger,"%s", value);
+}
+
+
 
 int iniciar_servidor(void)
 {
